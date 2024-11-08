@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skibidi Toilet Clicker Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #e0f7fa;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    h1 {
+      color: #00796b;
+      font-size: 36px;
+    }
+
+    .header {
+      position: absolute;
+      top: 10px;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 1;
+    }
+
+    .header-text {
+      font-size: 24px;
+      color: #00796b;
+    }
+
+    .save-button {
+      background-color: #00796b;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .button {
+      background-color: #ffffff;
+      border: 2px solid #00796b;
+      color: #00796b;
+      font-size: 24px;
+      padding: 15px;
+      border-radius: 50%;
+      cursor: pointer;
+      margin-top: 20px;
+      width: 100px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.1s;
+      z-index: 1;
+    }
+
+    .button:active {
+      transform: scale(0.95);
+    }
+
+    .toilet-icon {
+      font-size: 40px;
+    }
+
+    .upgrades {
+      margin-top: 20px;
+      z-index: 1;
+    }
+
+    .upgrade-button {
+      background-color: #00796b;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 10px;
+    }
+
+    .upgrade-button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    /* Falling toilets style */
+    .falling-toilet {
+      position: absolute;
+      top: -50px;
+      font-size: 30px;
+      animation: fall 5s linear infinite;
+    }
+
+    /* Falling animation */
+    @keyframes fall {
+      0% { top: -50px; opacity: 1; }
+      100% { top: 100vh; opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-text">Game made by Nash</div>
+    <button class="save-button" onclick="saveGame()">Save</button>
+  </div>
+
+  <h1>Skibidi Toilet Clicker</h1>
+  <p>Toilets Cleaned: <span id="points">0</span></p>
+  
+  <!-- Main Button for Clicking -->
+  <button class="button" onclick="clickButton()">
+    <span class="toilet-icon">🚽</span>
+  </button>
+  
+  <div class="upgrades">
+    <h2>Upgrades</h2>
+    <button class="upgrade-button" onclick="buyUpgrade()" id="upgradeButton">Upgrade Plunger (Cost: 10 Toilets)</button>
+  </div>
+
+  <!-- Falling toilets container -->
+  <div id="falling-toilets-container"></div>
+
+  <script>
+    let points = 0;
+    let pointsPerClick = 1;
+    let upgradeCost = 10;
+
+    // Load game progress from local storage on page load
+    window.onload = function() {
+      loadGame();
+      updatePointsDisplay();
+      generateFallingToilets();
+    }
+
+    function clickButton() {
+      points += pointsPerClick;
+      updatePointsDisplay();
+    }
+
+    function buyUpgrade() {
+      if (points >= upgradeCost) {
+        points -= upgradeCost;
+        pointsPerClick++;
+        upgradeCost = Math.floor(upgradeCost * 1.5);
+        updatePointsDisplay();
+        document.getElementById("upgradeButton").innerText = `Upgrade Plunger (Cost: ${upgradeCost} Toilets)`;
+      }
+    }
+
+    function updatePointsDisplay() {
+      document.getElementById("points").innerText = points;
+      document.getElementById("upgradeButton").disabled = points < upgradeCost;
+    }
+
+    function saveGame() {
+      // Save points, pointsPerClick, and upgradeCost to local storage
+      localStorage.setItem("points", points);
+      localStorage.setItem("pointsPerClick", pointsPerClick);
+      localStorage.setItem("upgradeCost", upgradeCost);
+      alert("Game saved!");
+    }
+
+    function loadGame() {
+      // Load saved values from local storage if they exist
+      if (localStorage.getItem("points")) {
+        points = parseInt(localStorage.getItem("points"));
+        pointsPerClick = parseInt(localStorage.getItem("pointsPerClick"));
+        upgradeCost = parseInt(localStorage.getItem("upgradeCost"));
+      }
+    }
+
+    // Generate falling toilet icons
+    function generateFallingToilets() {
+      const container = document.getElementById("falling-toilets-container");
+      setInterval(() => {
+        const toilet = document.createElement("div");
+        toilet.classList.add("falling-toilet");
+        toilet.innerText = "🚽";
+        toilet.style.left = Math.random() * 100 + "vw"; // Random horizontal position
+        toilet.style.animationDuration = (Math.random() * 3 + 2) + "s"; // Random fall duration
+        container.appendChild(toilet);
+
+        // Remove toilet icon once it falls out of view
+        toilet.addEventListener("animationend", () => {
+          toilet.remove();
+        });
+      }, 500); // Add a new toilet every 500 ms
+    }
+  </script>
+</body>
+</html>
